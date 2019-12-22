@@ -19,7 +19,7 @@ TreeItemPtr StoreCacheObject::getTreeItem(const std::string & key)
 
 TreeItemPtr StoreCacheObject::insert(const CacheObjectPtr & object)
 {
-    const auto & key(object->name());
+    const auto & key(object->key());
     auto treeItemIter(mCache.find(key));
 
     if (treeItemIter == mCache.end())

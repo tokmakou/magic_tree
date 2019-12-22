@@ -9,8 +9,8 @@ class RootCacheObject : public CacheObject
 {
     // CacheObject interface
 public:
-    std::string name() const { return std::string(); }
-    QVariant data(int) const { return QVariant(); }
+    std::string key() const override { return std::string(); }
+    QVariant data(int) const override { return QVariant(); }
 };
 
 CacheObjectPtr makeRootCacheObject() { return CacheObjectPtr(new RootCacheObject()); }
@@ -32,13 +32,13 @@ void Tree::insert(const CacheObjectPtr &object)
 
     if (insertedItem->getParent() == nullptr)
     {
-        move(insertedItem, mRoot);
+        insert(insertedItem);
         return;
     }
 
     const auto insertedItemParent(insertedItem->getParent());
     const auto insertedPos(insertedItemParent->childIndex(insertedItem));
-    mChangesListener.dataChanged(getModelParentPtr(insertedItemParent), insertedPos);
+    mChangesListener.dataChanged(getModelParentPtr(insertedItem), insertedPos);
 }
 
 void Tree::move(const std::string & key, const std::string & parent_key)
@@ -46,7 +46,8 @@ void Tree::move(const std::string & key, const std::string & parent_key)
     auto treeItem(mCache->getTreeItem(key));
     auto newParent(mCache->getTreeItem(parent_key));
 
-    Q_ASSERT(treeItem && newParent);
+    if (!treeItem || !newParent)
+        return;
 
     move(treeItem, newParent);
 }
@@ -54,7 +55,9 @@ void Tree::move(const std::string & key, const std::string & parent_key)
 void Tree::moveToRoot(const std::string & key)
 {
     auto treeItem(mCache->getTreeItem(key));
-    Q_ASSERT(treeItem);
+
+    if (!treeItem)
+        return;
 
     move(treeItem, mRoot);
 }
@@ -62,14 +65,16 @@ void Tree::moveToRoot(const std::string & key)
 void Tree::remove(const std::string & key)
 {
     auto treeItem(mCache->getTreeItem(key));
-    Q_ASSERT(treeItem);
+
+    if (!treeItem)
+        return;
 
     const auto & childList(treeItem->getCilds());
 
-    for(const auto & child : childList)
-    {
-        move(child, mRoot);
-    }
+    std::for_each(childList.begin(), childList.end(), [&](const TreeItemPtr & child)
+                  {
+                      move(child, mRoot);
+                  });
 
     remove(treeItem);
 }
@@ -81,13 +86,15 @@ const TreeItem & Tree::getRoot() const
 
 void Tree::move(const TreeItemPtr & item, const TreeItemPtr & parent)
 {
-    Q_ASSERT(item != mRoot);
-
     const auto currentParent(item->getParent());
+
+    if (currentParent == parent)
+        return;
+
     const auto currentPos(currentParent->childIndex(item));
 
-    mChangesListener.beginMove(getModelParentPtr(currentParent), currentPos,
-                               getModelParentPtr(parent), parent->childCount());
+    mChangesListener.beginMove(getModelParentPtr(item), currentPos,
+                               parent, parent->childCount());
 
     currentParent->removeChild(item);
     item->setParent(parent);
@@ -103,7 +110,7 @@ void Tree::remove(const TreeItemPtr & item)
     const auto parent(item->getParent());
     const auto pos(parent->childIndex(item));
 
-    mChangesListener.beginRemove(getModelParentPtr(parent), pos);
+    mChangesListener.beginRemove(getModelParentPtr(item), pos);
 
     parent->removeChild(item);
     mCache->remove(item->getKey());
@@ -111,7 +118,19 @@ void Tree::remove(const TreeItemPtr & item)
     mChangesListener.endRemove();
 }
 
+void Tree::insert(const TreeItemPtr &item)
+{
+    Q_ASSERT(item != mRoot);
+
+    mChangesListener.beginInsert(getModelParentPtr(mRoot), mRoot->getSize());
+
+    item->setParent(mRoot);
+    mRoot->addChild(item);
+
+    mChangesListener.endInsert();
+}
+
 TreeItemPtr Tree::getModelParentPtr(const TreeItemPtr & item)
 {
-    return item == mRoot ? mModelRoot : item->getParent();
+    return item == mRoot ? mRoot : item->getParent();
 }

@@ -67,7 +67,7 @@ void TreeItem::setParent(const TreeItemPtr &parent)
 
 std::string TreeItem::getKey() const
 {
-    return mCacheObject->name();
+    return mCacheObject->key();
 }
 
 void TreeItem::resetCacheObject(const CacheObjectPtr &cacheObject)

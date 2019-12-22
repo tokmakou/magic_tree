@@ -11,6 +11,8 @@ namespace magic_tree
 class ITreeChangesListener
 {
 public:
+    virtual ~ITreeChangesListener() = default;
+
     virtual void beginInsert(const TreeItemPtr & parentTreeItem, int pos) = 0;
     virtual void endInsert() = 0;
 
@@ -40,12 +42,12 @@ public:
 private:
     void move(const TreeItemPtr & item, const TreeItemPtr & parent);
     void remove(const TreeItemPtr & item);
+    void insert(const TreeItemPtr & item);
 
     TreeItemPtr getModelParentPtr(const TreeItemPtr & item);
 
 private:
     TreeItemPtr mRoot;
-    TreeItemPtr mModelRoot; // nullptr ever
 
     std::unique_ptr<StoreCacheObject> mCache;
 

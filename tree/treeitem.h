@@ -31,7 +31,7 @@ public:
     TreeItemPtr getParent() const;
     void setParent(const TreeItemPtr & parent);
 
-    std::string getKey() const;;
+    std::string getKey() const;
     void resetCacheObject(const CacheObjectPtr & cacheObject);
 
     const CacheObject & getCacheObject() const;

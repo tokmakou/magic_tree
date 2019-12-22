@@ -11,8 +11,9 @@ class CacheObject
 {
 public:
     CacheObject();
+    virtual ~CacheObject();
 
-    virtual std::string name() const = 0;
+    virtual std::string key() const = 0;
     virtual QVariant data(int role) const = 0;
 };
 

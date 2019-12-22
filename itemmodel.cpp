@@ -26,16 +26,13 @@ QModelIndex ItemModel::parent(const QModelIndex &child) const
         return QModelIndex();
 
     auto parentItem(childItem->getParent());
-    auto parentInternalPointer(parentItem.get() == &mTree.getRoot()
-                               ? nullptr
-                                   : parentItem.get());
 
-    if (parentInternalPointer == nullptr)
+    if (parentItem.get() == & mTree.getRoot())
         return QModelIndex();
 
-    return createIndex(parentInternalPointer->getParent()->childIndex(parentItem),
-                       0,
-                       parentInternalPointer);
+    auto parentIndex(parentItem->getParent()->childIndex(parentItem));
+
+    return createIndex(parentIndex, 0, parentItem.get());
 }
 
 int ItemModel::rowCount(const QModelIndex &parent) const
@@ -64,8 +61,8 @@ QVariant ItemModel::data(const QModelIndex &index, int role) const
 
 void ItemModel::beginInsert(const TreeItemPtr & parentTreeItem, int pos)
 {
-    auto row(parentTreeItem ? parentTreeItem->getParent()->childIndex(parentTreeItem) : -1);
-    auto parentIndex(parentTreeItem
+    auto row(parentTreeItem->getParent() ? parentTreeItem->getParent()->childIndex(parentTreeItem) : -1);
+    auto parentIndex(parentTreeItem->getParent()
                          ? createIndex(row, 0, parentTreeItem.get())
                          : QModelIndex());
 
@@ -79,8 +76,8 @@ void ItemModel::endInsert()
 
 void ItemModel::beginRemove(const TreeItemPtr & parentTreeItem, int pos)
 {
-    auto row(parentTreeItem ? parentTreeItem->getParent()->childIndex(parentTreeItem) : -1);
-    auto parentIndex(parentTreeItem
+    auto row(parentTreeItem->getParent() ? parentTreeItem->getParent()->childIndex(parentTreeItem) : -1);
+    auto parentIndex(parentTreeItem->getParent()
                          ? createIndex(row, 0, parentTreeItem.get())
                          : QModelIndex());
 
@@ -95,17 +92,17 @@ void ItemModel::endRemove()
 void ItemModel::beginMove(const TreeItemPtr & sourceParentTreeItem, int sourcePos,
                           const TreeItemPtr & destinationParentTreeItem, int pos)
 {
-    auto sourceParentRow(sourceParentTreeItem
+    auto sourceParentRow(sourceParentTreeItem->getParent()
                              ? sourceParentTreeItem->getParent()->childIndex(sourceParentTreeItem)
                              : -1);
-    auto parentIndex(sourceParentTreeItem
+    auto parentIndex(sourceParentTreeItem->getParent()
                          ? createIndex(sourceParentRow, 0, sourceParentTreeItem.get())
                          : QModelIndex());
 
-    auto destinationParentRow(destinationParentTreeItem
+    auto destinationParentRow(destinationParentTreeItem->getParent()
                                   ? destinationParentTreeItem->getParent()->childIndex(destinationParentTreeItem)
                                   : -1);
-    auto destinationIndex(destinationParentTreeItem
+    auto destinationIndex(destinationParentTreeItem->getParent()
                                     ? createIndex(destinationParentRow, 0, destinationParentTreeItem.get())
                                     : QModelIndex());
 

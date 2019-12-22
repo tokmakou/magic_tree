@@ -6,3 +6,5 @@ CacheObject::CacheObject()
 {
 
 }
+
+CacheObject::~CacheObject() = default;
