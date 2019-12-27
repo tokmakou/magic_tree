@@ -37,7 +37,7 @@ void TreeItem::removeChild(const TreeItemPtr & child)
     mChilds.erase(childIterator);
 }
 
-const TreeItemChilds & TreeItem::getCilds()
+const TreeItemChilds & TreeItem::getChilds()
 {
     return mChilds;
 }
@@ -78,5 +78,20 @@ void TreeItem::resetCacheObject(const CacheObjectPtr &cacheObject)
 const CacheObject &TreeItem::getCacheObject() const
 {
     return *mCacheObject.get();
+}
+
+int64_t TreeItem::row() const
+{
+    Q_ASSERT(mParent != nullptr);
+
+    auto iterator(std::find_if(mParent->mChilds.cbegin(), mParent->mChilds.cend(),
+                                 [&](const TreeItemPtr & child)
+                                 {
+                                   return child.get() == this;
+                                 }));
+
+    Q_ASSERT(iterator != mParent->mChilds.end());
+
+    return std::distance(mChilds.begin(), iterator);
 }
 

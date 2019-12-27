@@ -23,7 +23,7 @@ public:
 
     void addChild(const TreeItemPtr & child);
     void removeChild(const TreeItemPtr & child);
-    const TreeItemChilds & getCilds();
+    const TreeItemChilds & getChilds();
     std::size_t getSize() const;
 
     TreeItemPtr getChild(std::size_t index) const;
@@ -35,6 +35,8 @@ public:
     void resetCacheObject(const CacheObjectPtr & cacheObject);
 
     const CacheObject & getCacheObject() const;
+
+    int64_t row() const;
 
 private:
     CacheObjectPtr mCacheObject;
