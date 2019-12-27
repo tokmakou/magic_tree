@@ -34,6 +34,7 @@ public:
     void insert(const CacheObjectPtr & object);
 
     void move(const std::string & key, const std::string & parent_key);
+    void moveToRootIfThisParent(const std::string & key, const std::string & parent_key);
     void moveToRoot(const std::string & key);
     void remove(const std::string & key);
 

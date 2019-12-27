@@ -13,7 +13,7 @@ QModelIndex ItemModel::index(int row, int column, const QModelIndex & parent) co
 {
     const auto parentItem(parent.isValid()
                           ? static_cast<TreeItem *>(parent.internalPointer())
-                              : &mTree.getRoot());
+                          : &mTree.getRoot());
 
     return createIndex(row, column, parentItem->getChild(row).get());
 }
@@ -75,8 +75,8 @@ void ItemModel::endInsert()
 
 void ItemModel::beginRemove(const TreeItemPtr & parentTreeItem, int pos)
 {
-    auto parentIndex(parentTreeItem->getParent()
-                     ? createIndex(parentTreeItem->row(), 0, parentTreeItem.get())
+    auto parentIndex(parentTreeItem
+                         ? createIndex(parentTreeItem->row(), 0, parentTreeItem.get())
                          : QModelIndex());
 
     beginRemoveRows(parentIndex, pos, pos);
@@ -94,7 +94,7 @@ void ItemModel::beginMove(const TreeItemPtr & sourceParentTreeItem, int sourcePo
                          ? createIndex(sourceParentTreeItem->row(), 0, sourceParentTreeItem.get())
                          : QModelIndex());
 
-    auto destinationIndex(destinationParentTreeItem->getParent()
+    auto destinationIndex(destinationParentTreeItem
                                     ? createIndex(destinationParentTreeItem->row(), 0, destinationParentTreeItem.get())
                                     : QModelIndex());
 

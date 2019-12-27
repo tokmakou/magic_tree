@@ -16,7 +16,7 @@ int TreeItem::childCount()
 
 int TreeItem::childIndex(const TreeItemPtr & child) const
 {
-    auto childIterator(std::find(mChilds.begin(), mChilds.end(), child));
+    auto childIterator(std::find(mChilds.cbegin(), mChilds.cend(), child));
     Q_ASSERT(childIterator != mChilds.end());
 
     return std::distance(mChilds.begin(), childIterator);
@@ -85,13 +85,13 @@ int64_t TreeItem::row() const
     Q_ASSERT(mParent != nullptr);
 
     auto iterator(std::find_if(mParent->mChilds.cbegin(), mParent->mChilds.cend(),
-                                 [&](const TreeItemPtr & child)
+                                 [this](const TreeItemPtr & child)
                                  {
                                    return child.get() == this;
                                  }));
 
     Q_ASSERT(iterator != mParent->mChilds.end());
 
-    return std::distance(mChilds.begin(), iterator);
+    return std::distance(mParent->mChilds.cbegin(), iterator);
 }
 

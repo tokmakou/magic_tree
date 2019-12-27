@@ -52,6 +52,18 @@ void Tree::move(const std::string & key, const std::string & parent_key)
     move(treeItem, newParent);
 }
 
+void Tree::moveToRootIfThisParent(const std::string &key, const std::string &parent_key)
+{
+    auto treeItem(mCache->getTreeItem(key));
+    auto parent(mCache->getTreeItem(parent_key));
+
+    if (!treeItem)
+        return;
+
+    if (parent == treeItem->getParent())
+        move(treeItem, mRoot);
+}
+
 void Tree::moveToRoot(const std::string & key)
 {
     auto treeItem(mCache->getTreeItem(key));
@@ -93,7 +105,7 @@ void Tree::move(const TreeItemPtr & item, const TreeItemPtr & parent)
     const auto currentPos(item->row());
 
     mChangesListener.beginMove(getModelParentPtr(item), currentPos,
-                               parent, parent->childCount());
+                               parent == mRoot ? nullptr : parent, parent->childCount());
 
     currentParent->removeChild(item);
     item->setParent(parent);
@@ -107,7 +119,7 @@ void Tree::remove(const TreeItemPtr & item)
     Q_ASSERT(item != mRoot);
 
     const auto parent(item->getParent());
-    const auto pos(parent->childIndex(item));
+    const auto pos(item->row());
 
     mChangesListener.beginRemove(getModelParentPtr(item), pos);
 
